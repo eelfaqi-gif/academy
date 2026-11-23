@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>بوابة الطالب</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#f2f6f7; --surface:#ffffff; --ink:#12262b; --muted:#587076; --line:#d9e3e5;
+  --accent:#0b6b73; --accent-ink:#ffffff; --accent-soft:#dcedef;
+  --ok:#1b7a49; --ok-bg:#dcf2e5; --bad:#b3261e; --bad-bg:#fae2df; --warn:#85570a; --warn-bg:#faedcc;
+  --font-display:'Cairo','Segoe UI',Tahoma,sans-serif;
+  --font-body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0e1a1d; --surface:#162427; --ink:#e5eff1; --muted:#92a9af; --line:#2a3c41;
+    --accent:#4fc2cb; --accent-ink:#052428; --accent-soft:#1b3a3f;
+    --ok:#6fd49b; --ok-bg:#16382a; --bad:#ff9f96; --bad-bg:#3d1f1d; --warn:#f0c15c; --warn-bg:#3a2e12;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:max(20px,env(safe-area-inset-top,0px));padding-bottom:max(40px,env(safe-area-inset-bottom,0px))}
+button,input{font:inherit;color:inherit}
+.app{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2{font-family:var(--font-display);margin:0;text-wrap:balance}
+h1{font-size:1.5rem;font-weight:800}
+h2{font-size:1.1rem;font-weight:700}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.login{margin-top:10vh}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:.85rem;color:var(--muted)}
+.field input{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:12px;min-height:48px;width:100%;direction:ltr;text-align:center;letter-spacing:.2em;font-size:1.2rem;text-transform:uppercase;font-weight:600}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;min-height:46px;cursor:pointer;font-weight:600}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.err{color:var(--bad);font-size:.9rem;min-height:1.4em}
+.top{display:flex;gap:10px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+.top>div{min-width:0}
+.sub{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sum div{background:var(--bg);border-radius:12px;padding:10px 12px;min-width:0}
+.sum small{display:block;color:var(--muted);font-size:.8rem}
+.sum b{font-family:var(--font-display);font-size:1.35rem;font-variant-numeric:tabular-nums}
+.sum .ok b{color:var(--ok)} .sum .bad b{color:var(--bad)}
+.list{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--bg);border-radius:10px;padding:10px 12px}
+.row .d{min-width:0}
+.pill{display:inline-block;border-radius:999px;padding:2px 12px;font-size:.85rem;font-weight:600;white-space:nowrap}
+.pill.p,.pill.full{background:var(--ok-bg);color:var(--ok)}
+.pill.a,.pill.none{background:var(--bad-bg);color:var(--bad)}
+.pill.part{background:var(--warn-bg);color:var(--warn)}
+.muted{color:var(--muted);font-size:.85rem}
+.empty{text-align:center;color:var(--muted);padding:14px 0}
+.bar{height:10px;background:var(--bg);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+</style>
+</head>
+<body>
+<main class="app">
+
+<section id="login" class="card login" hidden>
+  <h1>بوابة الطالب</h1>
+  <p class="sub" style="margin:0">اكتب الكود الخاص بيك اللي اتسلّم لك من الأكاديمية عشان تشوف حضورك ومصاريفك.</p>
+  <form id="lf" style="display:flex;flex-direction:column;gap:12px" autocomplete="off">
+    <div class="field"><label for="code">كود الطالب</label><input id="code" maxlength="12" autocapitalize="characters" spellcheck="false" required></div>
+    <div class="err" id="err" role="alert"></div>
+    <button class="btn primary" type="submit" id="go">عرض بياناتي</button>
+  </form>
+</section>
+
+<section id="me" hidden>
+  <div class="app">
+    <header class="top">
+      <div><h1 id="nm"></h1><p class="sub" id="meta"></p></div>
+      <button class="btn" id="out">خروج</button>
+    </header>
+
+    <div class="card">
+      <h2>الحضور هذا الشهر</h2>
+      <div class="sum" id="sumA"></div>
+      <div class="bar" aria-hidden="true"><i id="barA" style="width:0"></i></div>
+      <p class="muted" id="rate" style="margin:0"></p>
+    </div>
+
+    <div class="card">
+      <h2>المصاريف</h2>
+      <ul class="list" id="fees"></ul>
+    </div>
+
+    <div class="card">
+      <h2>سجل الحضور والغياب</h2>
+      <ul class="list" id="att"></ul>
+    </div>
+
+    <p class="muted" style="text-align:center;margin:0">لو فيه أي غلطة في بياناتك كلّم إدارة الأكاديمية.</p>
+  </div>
+</section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script>
+(function(){
+var SUPABASE_URL='https://hbirmbhzsrgfzbsvpktj.supabase.co';
+var SUPABASE_ANON_KEY='sb_publishable_PmrP6r46S7i07MsxWR_yqw_V3SXJtXV';
+var sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}}):null;
+
+var MONTHS=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+var DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+var LEVEL={'1':'الفرقة الأولى','2':'الفرقة الثانية'};
+function $(id){return document.getElementById(id);}
+function pad(n){return String(n).padStart(2,'0');}
+function num(n){return Number(n||0).toLocaleString('en-US');}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function dayLabel(s){var p=String(s).split('-').map(Number);var d=new Date(p[0],p[1]-1,p[2]);return DAYS[d.getDay()]+' '+p[2]+' '+MONTHS[p[1]-1];}
+function monthLabel(m){var p=m.split('-').map(Number);return MONTHS[p[1]-1]+' '+p[0];}
+function nowMonth(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1);}
+function prevMonth(m){var p=m.split('-').map(Number);var d=new Date(p[0],p[1]-2,1);return d.getFullYear()+'-'+pad(d.getMonth()+1);}
+
+function show(which){$('login').hidden=which!=='login';$('me').hidden=which!=='me';}
+
+function render(d){
+  $('nm').textContent=d.name;
+  $('meta').textContent=[LEVEL[d.level]||'',(d.grp||'').trim()].filter(Boolean).join(' · ');
+  document.title=d.name+' | بوابة الطالب';
+
+  var cur=nowMonth(),p=0,a=0,all_p=0,all_a=0;
+  (d.attendance||[]).forEach(function(r){
+    if(r.status==='p')all_p++;else if(r.status==='a')all_a++;
+    if(String(r.day).slice(0,7)===cur){if(r.status==='p')p++;else if(r.status==='a')a++;}
+  });
+  $('sumA').innerHTML='<div class="ok"><small>حضرت</small><b>'+p+'</b></div><div class="bad"><small>غبت</small><b>'+a+'</b></div><div><small>الإجمالي</small><b>'+(p+a)+'</b></div>';
+  var tot=all_p+all_a,pct=tot?Math.round(all_p*100/tot):0;
+  $('barA').style.width=pct+'%';
+  $('rate').textContent=tot?('نسبة حضورك في كل الفترة المسجّلة: '+pct+'٪'):'لسه ماتسجّلش لك حضور.';
+
+  var paidBy={};(d.fees||[]).forEach(function(f){paidBy[f.month]=Number(f.paid||0);});
+  var due=Number(d.fee||0),months=[],m=cur,since=d.since||cur;
+  for(var i=0;i<12;i++){months.push(m);if(m<=since)break;m=prevMonth(m);}
+  var fh='';
+  months.forEach(function(mm){
+    var paid=paidBy[mm]||0,st=due<=0&&paid<=0?null:(paid<=0?'none':(paid>=due?'full':'part'));
+    var label={full:'مدفوع',none:'لم يُدفع',part:'دفعت جزء'}[st]||'بدون مصاريف';
+    var rest=Math.max(0,due-paid);
+    fh+='<li class="row"><div class="d"><strong>'+esc(monthLabel(mm))+'</strong><div class="muted">المطلوب '+num(due)+' · المدفوع '+num(paid)+(st==='part'?' · الباقي '+num(rest):'')+' ج.م</div></div><span class="pill '+(st||'')+'">'+label+'</span></li>';
+  });
+  $('fees').innerHTML=fh||'<li class="empty">مفيش مصاريف مسجّلة.</li>';
+
+  var ah='',list=(d.attendance||[]).slice(0,60);
+  list.forEach(function(r){
+    ah+='<li class="row"><span>'+esc(dayLabel(r.day))+'</span><span class="pill '+r.status+'">'+(r.status==='p'?'حاضر':'غايب')+'</span></li>';
+  });
+  $('att').innerHTML=ah||'<li class="empty">لسه ماتسجّلش لك حضور.</li>';
+  show('me');
+}
+
+async function lookup(code){
+  var err=$('err'),btn=$('go');
+  err.textContent='';btn.disabled=true;
+  try{
+    var r=await sb.rpc('student_portal',{p_code:code});
+    if(r.error){
+      err.textContent=/too many/i.test(r.error.message||'')?'محاولات كتير. استنى دقيقة وجرّب تاني.':'تعذر الاتصال. جرّب بعد شوية.';
+      show('login');
+    }else if(!r.data){
+      err.textContent='الكود غلط. اتأكد منه وجرّب تاني.';
+      show('login');
+    }else{render(r.data);}
+  }catch(e){err.textContent='تعذر الاتصال. اتأكد من النت.';show('login');}
+  btn.disabled=false;
+}
+
+$('lf').addEventListener('submit',function(e){
+  e.preventDefault();
+  var c=$('code').value.trim().toUpperCase();
+  if(!c)return;
+  try{history.replaceState(null,'','#'+c);}catch(_){}
+  lookup(c);
+});
+$('out').addEventListener('click',function(){
+  try{history.replaceState(null,'',location.pathname);}catch(_){}
+  $('code').value='';$('err').textContent='';show('login');
+});
+
+if(!sb){show('login');$('err').textContent='تعذر تحميل الصفحة. اتأكد من النت.';$('go').disabled=true;}
+else{
+  var h=(location.hash||'').replace('#','').trim();
+  if(h){h=h.toUpperCase();$('code').value=h;show('login');lookup(h);}
+  else show('login');
+}
+})();
+</script>
+</body>
+</html>
