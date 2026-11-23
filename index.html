@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>سجل الأكاديمية</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#f2f6f7; --surface:#ffffff; --ink:#12262b; --muted:#587076; --line:#d9e3e5;
+  --accent:#0b6b73; --accent-ink:#ffffff; --accent-soft:#dcedef;
+  --ok:#1b7a49; --ok-bg:#dcf2e5; --bad:#b3261e; --bad-bg:#fae2df; --warn:#85570a; --warn-bg:#faedcc;
+  --font-display:'Cairo','Segoe UI',Tahoma,sans-serif;
+  --font-body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0e1a1d; --surface:#162427; --ink:#e5eff1; --muted:#92a9af; --line:#2a3c41;
+    --accent:#4fc2cb; --accent-ink:#052428; --accent-soft:#1b3a3f;
+    --ok:#6fd49b; --ok-bg:#16382a; --bad:#ff9f96; --bad-bg:#3d1f1d; --warn:#f0c15c; --warn-bg:#3a2e12;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:max(20px,env(safe-area-inset-top,0px));padding-bottom:max(48px,env(safe-area-inset-bottom,0px))}
+button,input,select{font:inherit;color:inherit}
+.app{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
+h1{font-size:1.6rem;font-weight:800}
+h2{font-size:1.15rem;font-weight:700}
+.top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.top>div{min-width:0}
+.status{margin:2px 0 0;font-size:.85rem;color:var(--muted);overflow-wrap:anywhere}
+.tabs{display:grid;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.tab{border:0;background:transparent;padding:10px 4px;border-radius:9px;font-family:var(--font-display);font-weight:700;font-size:.95rem;color:var(--muted);cursor:pointer;min-height:44px}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bar .grow{flex:1;min-width:0}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;min-height:44px;cursor:pointer;font-weight:500}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.danger{color:var(--bad)}
+.btn:disabled,.seg button:disabled{opacity:.5;cursor:not-allowed}
+.datebox{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px}
+.datebox .label{flex:1;text-align:center;font-family:var(--font-display);font-weight:700;min-width:0}
+.datebox input[type=date]{border:0;background:transparent;width:44px;height:44px;padding:0;opacity:.85}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:.85rem;color:var(--muted)}
+.field input,.field select,.sel{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;min-height:44px;width:100%;min-width:0}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sum div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.sum small{display:block;color:var(--muted);font-size:.8rem}
+.sum b{font-family:var(--font-display);font-size:1.3rem;font-variant-numeric:tabular-nums}
+.sum .ok b{color:var(--ok)} .sum .bad b{color:var(--bad)}
+.list{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.row{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.who{min-width:0;flex:1 1 150px}
+.who strong{display:block;font-weight:600;overflow-wrap:anywhere}
+.who span{font-size:.85rem;color:var(--muted)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:var(--surface);border-radius:10px;min-height:44px;min-width:76px;padding:0 14px;cursor:pointer;font-weight:600}
+.seg button.p.on{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.seg button.a.on{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:600}
+.pill.full{background:var(--ok-bg);color:var(--ok)}
+.pill.none{background:var(--bad-bg);color:var(--bad)}
+.pill.part{background:var(--warn-bg);color:var(--warn)}
+.pill.na{background:var(--accent-soft);color:var(--muted)}
+.pay{display:flex;gap:6px;align-items:center;flex:1 1 220px;justify-content:flex-end}
+.pay input{width:7.5rem;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 10px;min-height:44px;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;min-height:40px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.form{background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form .wide{grid-column:1/-1}
+.form .actions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:24px 16px;text-align:center;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);font-family:var(--font-display);font-size:1.05rem;margin-bottom:4px}
+.notice{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:.9rem}
+.ltr{direction:ltr;text-align:right;unicode-bidi:plaintext}
+.stat{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.card{max-width:420px;margin:12vh auto 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.card .err{color:var(--bad);font-size:.9rem;min-height:1.4em}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.9rem;max-width:90vw;z-index:20}
+@media (max-width:480px){.form{grid-template-columns:1fr}.sum b{font-size:1.1rem}}
+</style>
+</head>
+<body>
+
+<!-- شاشة الدخول -->
+<section id="login" class="card" hidden>
+  <h1>سجل الأكاديمية</h1>
+  <form id="lf" style="display:flex;flex-direction:column;gap:12px">
+    <div class="field"><label for="l-email">الإيميل</label><input id="l-email" class="ltr" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="l-pass">الباسورد</label><input id="l-pass" class="ltr" type="password" autocomplete="current-password" required></div>
+    <div class="err" id="l-err" role="alert"></div>
+    <button class="btn primary" type="submit" id="l-btn">دخول</button>
+  </form>
+</section>
+
+<!-- مفيش صلاحية -->
+<section id="noaccess" class="card" hidden>
+  <h2>مفيش عندك صلاحية</h2>
+  <p style="margin:0;color:var(--muted)">الحساب ده مش مضاف على الموقع. كلّم مدير الأكاديمية عشان يديك صلاحية.</p>
+  <button class="btn" data-act="logout">تسجيل خروج</button>
+</section>
+
+<!-- التطبيق -->
+<div id="app" class="app" hidden>
+  <header class="top">
+    <div>
+      <h1>سجل الأكاديمية</h1>
+      <p class="status" id="who"></p>
+    </div>
+    <div class="bar">
+      <button class="btn" data-act="refresh">تحديث</button>
+      <button class="btn" data-act="logout">خروج</button>
+    </div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="الأقسام"></nav>
+  <main id="view"></main>
+</div>
+<div id="toast" hidden role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script>
+(function(){
+/* ======= الإعدادات: الصق هنا بيانات مشروعك من Supabase ======= */
+var SUPABASE_URL='https://hbirmbhzsrgfzbsvpktj.supabase.co';
+var SUPABASE_ANON_KEY='sb_publishable_PmrP6r46S7i07MsxWR_yqw_V3SXJtXV';
+/* ============================================================== */
+
+var configured=!/PASTE_/.test(SUPABASE_URL+SUPABASE_ANON_KEY)&&window.supabase;
+var sb=configured?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
+
+var MONTHS=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+var DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+var ROLE_LABEL={admin:'مدير',editor:'يسجّل ويعدّل',viewer:'عرض فقط'};
+function pad(n){return String(n).padStart(2,'0');}
+function fmtDate(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function todayStr(){return fmtDate(new Date());}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function num(n){return Number(n||0).toLocaleString('en-US');}
+function dateLabel(s){var p=s.split('-').map(Number);var d=new Date(p[0],p[1]-1,p[2]);return DAYS[d.getDay()]+' '+p[2]+' '+MONTHS[p[1]-1]+' '+p[0];}
+function shiftDate(s,n){var p=s.split('-').map(Number);return fmtDate(new Date(p[0],p[1]-1,p[2]+n));}
+function shiftMonth(s,n){var p=s.split('-').map(Number);var d=new Date(p[0],p[1]-1+n,1);return d.getFullYear()+'-'+pad(d.getMonth()+1);}
+function monthLabel(s){var p=s.split('-').map(Number);return MONTHS[p[1]-1]+' '+p[0];}
+function $(id){return document.getElementById(id);}
+
+var state={students:[],att:{},fees:{},members:[]};
+var ui={tab:'att',date:todayStr(),month:todayStr().slice(0,7),group:'',level:'',search:'',feeFilter:'all',editing:null,draft:{},confirmDel:null,confirmRev:null,loaded:false};
+var me=null,role=null,canWrite=false,pending=false;
+var view=$('view');
+
+function toast(msg){var t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(function(){t.hidden=true;},3500);}
+function showScreen(name){['login','noaccess','app'].forEach(function(n){$(n).hidden=n!==name;});}
+
+/* ---------- تحميل البيانات ---------- */
+async function fetchAll(make){
+  var out=[],from=0,step=1000;
+  for(;;){
+    var r=await make(from,from+step-1);
+    if(r.error)throw r.error;
+    out=out.concat(r.data);
+    if(r.data.length<step)break;
+    from+=step;
+  }
+  return out;
+}
+async function loadStudents(){
+  state.students=await fetchAll(function(a,b){return sb.from('students').select('*').order('name').order('id').range(a,b);});
+}
+async function loadAttMonth(m){
+  var from=m+'-01',to=shiftMonth(m,1)+'-01';
+  var rows=await fetchAll(function(a,b){return sb.from('attendance').select('student_id,day,status').gte('day',from).lt('day',to).order('day').order('student_id').range(a,b);});
+  Object.keys(state.att).forEach(function(d){if(d.slice(0,7)===m)delete state.att[d];});
+  rows.forEach(function(r){(state.att[r.day]||(state.att[r.day]={}))[r.student_id]=r.status;});
+}
+async function loadFees(m){
+  var rows=await fetchAll(function(a,b){return sb.from('fees').select('student_id,paid').eq('month',m).order('student_id').range(a,b);});
+  var o={};rows.forEach(function(r){o[r.student_id]=Number(r.paid);});state.fees[m]=o;
+}
+async function loadMembers(){
+  var r=await sb.rpc('list_members');
+  if(r.error)throw r.error;
+  state.members=r.data||[];
+}
+async function loadAll(){
+  try{
+    var m1=ui.date.slice(0,7),m2=todayStr().slice(0,7);
+    var jobs=[loadStudents(),loadAttMonth(m1),loadFees(ui.month)];
+    if(m2!==m1)jobs.push(loadAttMonth(m2));
+    if(role==='admin')jobs.push(loadMembers());
+    await Promise.all(jobs);
+    ui.loaded=true;
+  }catch(e){toast('تعذر تحميل البيانات. اتأكد من النت وجرّب تحديث.');}
+}
+
+/* ---------- مساعدات العرض ---------- */
+function students(){return state.students;}
+function groups(){var seen={},out=[];state.students.forEach(function(s){var g=(s.grp||'').trim();if(g&&!seen[g]){seen[g]=1;out.push(g);}});return out;}
+var LEVEL={'1':'الفرقة الأولى','2':'الفرقة الثانية'};
+function norm(s){return String(s||'').toLowerCase().replace(/[ً-ٰٟـ]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').trim();}
+function filtered(){
+  var words=norm(ui.search).split(/\s+/).filter(Boolean);
+  return state.students.filter(function(s){
+    if(ui.group&&(s.grp||'').trim()!==ui.group)return false;
+    if(ui.level&&s.level!==ui.level)return false;
+    var n=norm(s.name);
+    return words.every(function(w){return n.indexOf(w)!==-1;});
+  });
+}
+function meta(s){return [LEVEL[s.level]||'',(s.grp||'').trim()].filter(Boolean).join(' · ');}
+function filterBar(){
+  var c={'1':0,'2':0};state.students.forEach(function(s){if(c[s.level]!==undefined)c[s.level]++;});
+  var lv=[['','الكل ('+state.students.length+')'],['1','الفرقة الأولى ('+c['1']+')'],['2','الفرقة الثانية ('+c['2']+')']];
+  return '<div class="field"><input id="q" type="search" placeholder="ابحث عن طالب بالاسم" value="'+esc(ui.search)+'" aria-label="بحث بالاسم" autocomplete="off"></div>'+
+    '<div class="chips">'+lv.map(function(o){return '<button class="chip" data-act="lv" data-v="'+o[0]+'" aria-pressed="'+(ui.level===o[0])+'">'+o[1]+'</button>';}).join('')+'</div>';
+}
+function feeInfo(s){
+  var paid=Number((state.fees[ui.month]||{})[s.id]||0),due=Number(s.fee||0);
+  var st=due<=0&&paid<=0?'na':(paid<=0?'none':(paid>=due?'full':'part'));
+  return {paid:paid,due:due,st:st,rest:Math.max(0,due-paid)};
+}
+var ST_LABEL={full:'مدفوع',none:'لم يدفع',part:'دفع جزء',na:'بدون مصاريف'};
+function isTyping(){var a=document.activeElement;return !!(a&&a.closest&&a.closest('.paid-input,#sf,#gf,#q')&&/INPUT|SELECT/.test(a.tagName));}
+
+function groupSelect(){
+  var gs=groups();if(!gs.length)return '';
+  return '<div class="field grow"><select class="sel" data-bind="group" aria-label="المجموعة"><option value="">كل المجموعات</option>'+
+    gs.map(function(g){return '<option value="'+esc(g)+'"'+(ui.group===g?' selected':'')+'>'+esc(g)+'</option>';}).join('')+'</select></div>';
+}
+function emptyBlock(){
+  if(!ui.loaded)return '<div class="empty">جاري تحميل البيانات…</div>';
+  if(state.students.length)return '<div class="empty">مفيش طلاب مطابقين للبحث أو الفرقة المختارة.</div>';
+  return '<div class="empty"><strong>لسه مفيش طلاب</strong>افتح قسم «الطلاب» واضغط «طالب جديد» عشان تضيف أول طالب.</div>';
+}
+function viewAtt(){
+  var list=filtered(),rec=state.att[ui.date]||{},p=0,a=0;
+  list.forEach(function(s){if(rec[s.id]==='p')p++;else if(rec[s.id]==='a')a++;});
+  var h='<div class="datebox"><button class="btn" data-act="day" data-n="-1" aria-label="اليوم السابق">→</button>'+
+    '<div class="label">'+esc(dateLabel(ui.date))+'</div>'+
+    '<button class="btn" data-act="day" data-n="1" aria-label="اليوم التالي">←</button>'+
+    '<input type="date" id="datePick" value="'+ui.date+'" aria-label="اختيار تاريخ"></div>';
+  h+=filterBar();
+  h+='<div class="bar">'+groupSelect()+'<button class="btn" data-act="today">النهاردة</button><button class="btn" data-act="allp"'+(canWrite&&list.length?'':' disabled')+'>الكل حاضر</button></div>';
+  h+='<div class="sum"><div class="ok"><small>حاضر</small><b>'+p+'</b></div><div class="bad"><small>غايب</small><b>'+a+'</b></div><div><small>لم يُسجّل</small><b>'+(list.length-p-a)+'</b></div></div>';
+  if(!list.length)return h+emptyBlock();
+  return h+'<ul class="list">'+list.map(function(s){
+    var v=rec[s.id];
+    return '<li class="row"><div class="who"><strong>'+esc(s.name)+'</strong><span>'+esc(meta(s))+'</span></div>'+
+      '<div class="seg"><button class="p'+(v==='p'?' on':'')+'" data-act="mark" data-id="'+s.id+'" data-v="p" aria-pressed="'+(v==='p')+'"'+(canWrite?'':' disabled')+'>حاضر</button>'+
+      '<button class="a'+(v==='a'?' on':'')+'" data-act="mark" data-id="'+s.id+'" data-v="a" aria-pressed="'+(v==='a')+'"'+(canWrite?'':' disabled')+'>غايب</button></div></li>';
+  }).join('')+'</ul>';
+}
+function feeRow(s){
+  var f=feeInfo(s);
+  return '<li class="row" id="row-'+s.id+'"><div class="who"><strong>'+esc(s.name)+'</strong><span>'+esc(meta(s))+(meta(s)?' · ':'')+'المطلوب '+num(f.due)+' ج.م</span></div>'+
+    '<span class="pill '+f.st+'">'+ST_LABEL[f.st]+(f.st==='part'?' (باقي '+num(f.rest)+')':'')+'</span>'+
+    '<div class="pay"><input class="paid-input" type="number" inputmode="numeric" min="0" data-id="'+s.id+'" value="'+(f.paid||'')+'" placeholder="المدفوع" aria-label="المبلغ المدفوع لـ '+esc(s.name)+'"'+(canWrite?'':' disabled')+'>'+
+    (f.st==='full'?'<button class="btn" data-act="unpay" data-id="'+s.id+'"'+(canWrite?'':' disabled')+'>إلغاء</button>':'<button class="btn primary" data-act="payfull" data-id="'+s.id+'"'+(canWrite&&f.due>0?'':' disabled')+'>دفع كامل</button>')+
+    '</div></li>';
+}
+function feeSummary(list){
+  var due=0,paid=0;list.forEach(function(s){var f=feeInfo(s);due+=f.due;paid+=Math.min(f.paid,f.due||f.paid);});
+  return '<div class="sum" id="feeSum"><div><small>المطلوب</small><b>'+num(due)+'</b></div><div class="ok"><small>المحصّل</small><b>'+num(paid)+'</b></div><div class="bad"><small>المتبقي</small><b>'+num(Math.max(0,due-paid))+'</b></div></div>';
+}
+function viewFees(){
+  var all=filtered();
+  var h='<div class="datebox"><button class="btn" data-act="mon" data-n="-1" aria-label="الشهر السابق">→</button><div class="label">'+esc(monthLabel(ui.month))+'</div><button class="btn" data-act="mon" data-n="1" aria-label="الشهر التالي">←</button></div>';
+  h+=filterBar();
+  h+='<div class="bar">'+groupSelect()+'</div>'+feeSummary(all);
+  var opts=[['all','الكل'],['none','لم يدفع'],['part','دفع جزء'],['full','مدفوع']];
+  h+='<div class="chips">'+opts.map(function(o){return '<button class="chip" data-act="ff" data-v="'+o[0]+'" aria-pressed="'+(ui.feeFilter===o[0])+'">'+o[1]+'</button>';}).join('')+'</div>';
+  var list=all.filter(function(s){return ui.feeFilter==='all'||feeInfo(s).st===ui.feeFilter;});
+  if(!all.length)return h+emptyBlock();
+  if(!list.length)return h+'<div class="empty">مفيش طلاب في الحالة دي لشهر '+esc(monthLabel(ui.month))+'.</div>';
+  return h+'<ul class="list">'+list.map(feeRow).join('')+'</ul>';
+}
+function monthStats(id){
+  var key=todayStr().slice(0,7),p=0,a=0;
+  Object.keys(state.att).forEach(function(d){if(d.slice(0,7)!==key)return;var v=(state.att[d]||{})[id];if(v==='p')p++;else if(v==='a')a++;});
+  return {p:p,a:a};
+}
+function formHtml(){
+  var d=ui.draft;
+  return '<form class="form" id="sf" autocomplete="off"><h2 class="wide">'+(ui.editing==='new'?'طالب جديد':'تعديل بيانات الطالب')+'</h2>'+
+    '<div class="field wide"><label for="f-name">اسم الطالب</label><input id="f-name" name="name" data-draft="1" required value="'+esc(d.name)+'"></div>'+
+    '<div class="field"><label for="f-level">الفرقة</label><select id="f-level" name="level" data-draft="1"><option value="">بدون</option><option value="1"'+(d.level==='1'?' selected':'')+'>الفرقة الأولى</option><option value="2"'+(d.level==='2'?' selected':'')+'>الفرقة الثانية</option></select></div>'+
+    '<div class="field"><label for="f-group">المجموعة (اختياري)</label><input id="f-group" name="group" list="glist" data-draft="1" value="'+esc(d.group)+'"><datalist id="glist">'+groups().map(function(g){return '<option value="'+esc(g)+'">';}).join('')+'</datalist></div>'+
+    '<div class="field"><label for="f-fee">المصاريف الشهرية (ج.م)</label><input id="f-fee" name="fee" type="number" inputmode="numeric" min="0" data-draft="1" value="'+esc(d.fee)+'"></div>'+
+    '<div class="field"><label for="f-phone">رقم الموبايل (اختياري)</label><input id="f-phone" class="ltr" name="phone" type="tel" data-draft="1" value="'+esc(d.phone)+'"></div>'+
+    '<div class="actions"><button class="btn primary" type="submit">حفظ</button><button class="btn" type="button" data-act="cancel">إلغاء</button></div></form>';
+}
+function viewStu(){
+  var list=filtered();
+  var h='<div class="bar"><h2 class="grow">الطلاب ('+list.length+')</h2><button class="btn primary" data-act="new"'+(canWrite?'':' disabled')+'>+ طالب جديد</button></div>';
+  if(ui.editing!==null)h+=formHtml();
+  h+=filterBar();
+  h+='<div class="bar">'+groupSelect()+'</div>';
+  if(!list.length&&ui.editing===null)return h+emptyBlock();
+  return h+'<ul class="list">'+list.map(function(s){
+    var m=monthStats(s.id);
+    var del=ui.confirmDel===s.id
+      ?'<button class="btn danger" data-act="delyes" data-id="'+s.id+'">تأكيد الحذف</button><button class="btn" data-act="delno">لا</button>'
+      :'<button class="btn" data-act="edit" data-id="'+s.id+'"'+(canWrite?'':' disabled')+'>تعديل</button><button class="btn danger" data-act="del" data-id="'+s.id+'"'+(canWrite?'':' disabled')+'>حذف</button>';
+    return '<li class="row"><div class="who"><strong>'+esc(s.name)+'</strong><span>'+esc(meta(s)||'بدون فرقة أو مجموعة')+' · '+num(s.fee)+' ج.م شهريًا</span>'+
+      (s.phone?'<span class="ltr" style="display:block">'+esc(s.phone)+'</span>':'')+
+      '<span class="stat" style="display:block">هذا الشهر: حضر '+m.p+' · غاب '+m.a+'</span></div><div class="seg">'+del+'</div></li>';
+  }).join('')+'</ul>';
+}
+function roleOptions(sel){
+  return ['editor','viewer','admin'].map(function(r){return '<option value="'+r+'"'+(sel===r?' selected':'')+'>'+ROLE_LABEL[r]+'</option>';}).join('');
+}
+function viewUsers(){
+  var h='<h2>مين يقدر يدخل الموقع</h2>'+
+    '<p class="status" style="margin:0">اعمل الحساب الأول من لوحة Supabase (Authentication ثم Users ثم Add user) بإيميل وباسورد، وبعدين اكتب نفس الإيميل هنا وحدد صلاحيته.</p>'+
+    '<form class="form" id="gf" autocomplete="off">'+
+    '<div class="field"><label for="g-email">إيميل المستخدم</label><input id="g-email" class="ltr" name="email" type="email" required></div>'+
+    '<div class="field"><label for="g-role">الصلاحية</label><select id="g-role" name="role">'+roleOptions('editor')+'</select></div>'+
+    '<div class="actions"><button class="btn primary" type="submit">إعطاء صلاحية</button></div></form>';
+  h+='<ul class="list">'+state.members.map(function(m){
+    var self=me&&m.user_id===me.id;
+    var rev=ui.confirmRev===m.user_id
+      ?'<button class="btn danger" data-act="revyes" data-uid="'+m.user_id+'">تأكيد الإزالة</button><button class="btn" data-act="revno">لا</button>'
+      :(self?'<span class="stat">أنت</span>':'<button class="btn danger" data-act="rev" data-uid="'+m.user_id+'">إزالة</button>');
+    return '<li class="row"><div class="who"><strong class="ltr">'+esc(m.email)+'</strong></div>'+
+      '<div class="seg"><select class="sel" style="width:auto" data-bind="memberrole" data-email="'+esc(m.email)+'"'+(self?' disabled':'')+' aria-label="صلاحية '+esc(m.email)+'">'+roleOptions(m.role)+'</select>'+rev+'</div></li>';
+  }).join('')+'</ul>';
+  return h;
+}
+function renderTabs(){
+  var tabs=[['att','الحضور والغياب'],['fees','المصاريف'],['stu','الطلاب']];
+  if(role==='admin')tabs.push(['users','الصلاحيات']);
+  var nav=$('tabs');
+  nav.style.gridTemplateColumns='repeat('+tabs.length+',1fr)';
+  nav.innerHTML=tabs.map(function(t){return '<button class="tab" role="tab" data-act="tab" data-tab="'+t[0]+'" aria-selected="'+(ui.tab===t[0])+'">'+t[1]+'</button>';}).join('');
+}
+function render(force){
+  if(!force&&isTyping()){pending=true;return;}
+  pending=false;renderTabs();
+  var h=ui.tab==='att'?viewAtt():ui.tab==='fees'?viewFees():ui.tab==='stu'?viewStu():viewUsers();
+  if(!canWrite&&ui.tab!=='users')h='<div class="notice">حسابك للعرض فقط. مش هتقدر تسجّل أو تعدّل.</div>'+h;
+  view.innerHTML=h;
+}
+document.addEventListener('focusout',function(){if(pending)setTimeout(function(){if(pending&&!isTyping())render();},200);});
+
+/* ---------- الكتابة ---------- */
+async function guard(promise,reloadFn){
+  try{
+    var r=await promise;
+    if(r&&r.error)throw r.error;
+    return true;
+  }catch(e){
+    toast('تعذر الحفظ. ممكن مفيش صلاحية أو النت فاصل.');
+    try{if(reloadFn)await reloadFn();}catch(_){}
+    render(true);
+    return false;
+  }
+}
+async function mark(id,v){
+  var day=ui.date,rec=state.att[day]||(state.att[day]={}),was=rec[id];
+  if(was===v){delete rec[id];render(true);
+    await guard(sb.from('attendance').delete().eq('student_id',id).eq('day',day),function(){return loadAttMonth(day.slice(0,7));});
+  }else{rec[id]=v;render(true);
+    await guard(sb.from('attendance').upsert({student_id:id,day:day,status:v}),function(){return loadAttMonth(day.slice(0,7));});
+  }
+}
+async function allPresent(){
+  var day=ui.date,rec=state.att[day]||(state.att[day]={}),rows=[];
+  filtered().forEach(function(s){if(rec[s.id]!=='p'){rec[s.id]='p';rows.push({student_id:s.id,day:day,status:'p'});}});
+  render(true);
+  if(rows.length)await guard(sb.from('attendance').upsert(rows),function(){return loadAttMonth(day.slice(0,7));});
+}
+async function setPaid(id,v){
+  var m=ui.month,cur=state.fees[m]||(state.fees[m]={});
+  if(v>0)cur[id]=v;else delete cur[id];
+  if(v>0)await guard(sb.from('fees').upsert({student_id:id,month:m,paid:v}),function(){return loadFees(m);});
+  else await guard(sb.from('fees').delete().eq('student_id',id).eq('month',m),function(){return loadFees(m);});
+}
+async function setDate(d){ui.date=d;render(true);try{await loadAttMonth(d.slice(0,7));render(true);}catch(e){toast('تعذر تحميل الحضور.');}}
+async function setMonth(m){ui.month=m;render(true);try{await loadFees(m);render(true);}catch(e){toast('تعذر تحميل المصاريف.');}}
+
+document.addEventListener('click',async function(e){
+  var t=e.target.closest('[data-act]');if(!t)return;
+  var act=t.dataset.act,id=t.dataset.id;
+  if(act==='logout'){await sb.auth.signOut();state={students:[],att:{},fees:{},members:[]};ui.loaded=false;showScreen('login');}
+  else if(act==='refresh'){await loadAll();render(true);toast('تم التحديث');}
+  else if(act==='tab'){ui.tab=t.dataset.tab;ui.confirmDel=null;ui.confirmRev=null;render(true);}
+  else if(act==='day')setDate(shiftDate(ui.date,Number(t.dataset.n)));
+  else if(act==='today')setDate(todayStr());
+  else if(act==='mon')setMonth(shiftMonth(ui.month,Number(t.dataset.n)));
+  else if(act==='ff'){ui.feeFilter=t.dataset.v;render(true);}
+  else if(act==='lv'){ui.level=t.dataset.v;render(true);}
+  else if(act==='mark')mark(id,t.dataset.v);
+  else if(act==='allp')allPresent();
+  else if(act==='payfull'){var s=state.students.find(function(x){return x.id===id;});if(s){render(true);setPaid(id,Number(s.fee||0)).then(function(){render(true);});}}
+  else if(act==='unpay'){setPaid(id,0).then(function(){render(true);});}
+  else if(act==='new'){ui.editing='new';ui.draft={name:'',group:ui.group||'',level:ui.level||'',fee:'',phone:''};render(true);var f=$('f-name');if(f)f.focus();}
+  else if(act==='edit'){var st=state.students.find(function(x){return x.id===id;});ui.editing=id;ui.draft={name:st.name||'',group:st.grp||'',level:st.level||'',fee:st.fee||'',phone:st.phone||''};render(true);}
+  else if(act==='cancel'){ui.editing=null;render(true);}
+  else if(act==='del'){ui.confirmDel=id;render(true);}
+  else if(act==='delno'){ui.confirmDel=null;render(true);}
+  else if(act==='delyes'){
+    state.students=state.students.filter(function(x){return x.id!==id;});ui.confirmDel=null;render(true);
+    if(await guard(sb.from('students').delete().eq('id',id),loadStudents))toast('تم حذف الطالب');
+  }
+  else if(act==='rev'){ui.confirmRev=t.dataset.uid;render(true);}
+  else if(act==='revno'){ui.confirmRev=null;render(true);}
+  else if(act==='revyes'){
+    ui.confirmRev=null;
+    var ok=await guard(sb.rpc('revoke_access',{p_user:t.dataset.uid}));
+    await loadMembers().catch(function(){});render(true);if(ok)toast('تمت إزالة الصلاحية');
+  }
+});
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.dataset&&t.dataset.draft){ui.draft[t.name]=t.value;}
+  else if(t.id==='q'){
+    ui.search=t.value;var pos=t.selectionStart;
+    render(true);
+    var q=$('q');if(q){q.focus();try{q.setSelectionRange(pos,pos);}catch(_){}}
+  }
+});
+document.addEventListener('change',async function(e){
+  var t=e.target;
+  if(t.id==='datePick'&&t.value)setDate(t.value);
+  else if(t.dataset&&t.dataset.bind==='group'){ui.group=t.value;render(true);}
+  else if(t.dataset&&t.dataset.bind==='memberrole'){
+    var ok=await guard(sb.rpc('grant_access',{p_email:t.dataset.email,p_role:t.value}));
+    await loadMembers().catch(function(){});render(true);if(ok)toast('تم تغيير الصلاحية');
+  }
+  else if(t.classList.contains('paid-input')){
+    var v=Math.max(0,Number(t.value)||0),id=t.dataset.id;
+    var cur=state.fees[ui.month]||(state.fees[ui.month]={});
+    if(v>0)cur[id]=v;else delete cur[id];
+    var s=state.students.find(function(x){return x.id===id;});
+    var row=$('row-'+id),sum=$('feeSum');
+    if(row&&s)row.outerHTML=feeRow(s);
+    if(sum)sum.outerHTML=feeSummary(filtered());
+    setPaid(id,v);
+  }
+});
+document.addEventListener('submit',async function(e){
+  var f=e.target;
+  if(f.id==='lf'){
+    e.preventDefault();
+    var btn=$('l-btn');btn.disabled=true;$('l-err').textContent='';
+    try{
+      var r=await sb.auth.signInWithPassword({email:$('l-email').value.trim(),password:$('l-pass').value});
+      if(r.error){$('l-err').textContent='الإيميل أو الباسورد غلط.';}
+      else{$('l-pass').value='';await enter(r.data.session);}
+    }catch(err){$('l-err').textContent='تعذر الاتصال. اتأكد من النت.';}
+    btn.disabled=false;
+  }
+  else if(f.id==='sf'){
+    e.preventDefault();
+    var d=ui.draft,name=(d.name||'').trim();
+    if(!name){toast('اكتب اسم الطالب');return;}
+    var row={name:name,level:d.level||'',grp:(d.group||'').trim(),phone:(d.phone||'').trim(),fee:Math.max(0,Number(d.fee)||0)};
+    var isNew=ui.editing==='new',id=ui.editing;
+    ui.editing=null;
+    var res=isNew?await sb.from('students').insert(row):await sb.from('students').update(row).eq('id',id);
+    if(res.error)toast('تعذر حفظ الطالب. ممكن مفيش صلاحية.');
+    else toast('تم حفظ بيانات الطالب');
+    try{await loadStudents();}catch(_){}
+    render(true);
+  }
+  else if(f.id==='gf'){
+    e.preventDefault();
+    var email=$('g-email').value.trim(),rl=$('g-role').value;
+    var r2=await sb.rpc('grant_access',{p_email:email,p_role:rl});
+    if(r2.error){
+      toast(/not found/.test(r2.error.message||'')?'الإيميل ده مالوش حساب. اعمله حساب من Supabase الأول.':'تعذر إعطاء الصلاحية.');
+    }else{toast('تم إعطاء الصلاحية');}
+    try{await loadMembers();}catch(_){}
+    render(true);
+  }
+});
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&role&&!isTyping()){loadAll().then(function(){render();});}
+});
+
+/* ---------- البداية ---------- */
+async function enter(session){
+  me=session.user;
+  var r=await sb.from('members').select('role').eq('user_id',me.id).maybeSingle();
+  if(r.error||!r.data){role=null;showScreen('noaccess');return;}
+  role=r.data.role;canWrite=role==='admin'||role==='editor';
+  ui.tab='att';ui.date=todayStr();ui.month=todayStr().slice(0,7);
+  $('who').textContent=me.email+' · '+ROLE_LABEL[role];
+  showScreen('app');render(true);
+  await loadAll();render(true);
+}
+(async function boot(){
+  if(!sb){
+    showScreen('login');
+    $('l-err').textContent='لسه ما حطيتش إعدادات Supabase في أول ملف index.html.';
+    $('l-btn').disabled=true;return;
+  }
+  sb.auth.onAuthStateChange(function(ev){if(ev==='SIGNED_OUT')setTimeout(function(){role=null;showScreen('login');},0);});
+  var r=await sb.auth.getSession();
+  if(r.data&&r.data.session)await enter(r.data.session);else showScreen('login');
+})();
+})();
+</script>
+</body>
+</html>
