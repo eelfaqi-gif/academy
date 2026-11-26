@@ -83,6 +83,13 @@ h2{font-size:1.15rem;font-weight:700}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;min-height:40px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.mstrip{display:flex;gap:6px;flex-wrap:wrap;width:100%}
+.mchip{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:4px 10px;min-height:40px;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--muted)}
+.mchip i{font-style:normal;font-weight:800}
+.mchip.st-full{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.mchip.st-part{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.mchip.st-none{background:var(--bad-bg);color:var(--bad);border-color:transparent}
+.mchip[aria-pressed="true"]{outline:3px solid var(--accent);outline-offset:1px}
 .form{background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .form .wide{grid-column:1/-1}
 .form .actions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
@@ -188,9 +195,10 @@ async function loadAttMonth(m){
   Object.keys(state.att).forEach(function(d){if(d.slice(0,7)===m)delete state.att[d];});
   rows.forEach(function(r){(state.att[r.day]||(state.att[r.day]={}))[r.student_id]=r.status;});
 }
-async function loadFees(m){
-  var rows=await fetchAll(function(a,b){return sb.from('fees').select('student_id,paid').eq('month',m).order('student_id').range(a,b);});
-  var o={};rows.forEach(function(r){o[r.student_id]=Number(r.paid);});state.fees[m]=o;
+async function loadFees(){
+  var rows=await fetchAll(function(a,b){return sb.from('fees').select('student_id,month,paid').order('month').order('student_id').range(a,b);});
+  var all={};rows.forEach(function(r){(all[r.month]||(all[r.month]={}))[r.student_id]=Number(r.paid);});
+  state.fees=all;
 }
 async function loadMembers(){
   var r=await sb.rpc('list_members');
@@ -265,13 +273,27 @@ function viewAtt(){
       '<button class="a'+(v==='a'?' on':'')+'" data-act="mark" data-id="'+s.id+'" data-v="a" aria-pressed="'+(v==='a')+'"'+(canWrite?'':' disabled')+'>غايب</button></div></li>';
   }).join('')+'</ul>';
 }
+function monthName(m){return MONTHS[Number(m.split('-')[1])-1];}
+var MARK={full:'✓',part:'½',none:'✗',na:'–',pre:'·'};
+function monthStrip(s){
+  var start=(s.created_at||'').slice(0,7),sel=ui.month,selYear=sel.slice(0,4),h='';
+  for(var k=5;k>=0;k--){
+    var mm=shiftMonth(sel,-k);
+    var paid=Number((state.fees[mm]||{})[s.id]||0),due=Number(s.fee||0);
+    var started=!start||mm>=start||paid>0;
+    var st=!started?'pre':(due<=0&&paid<=0?'na':(paid<=0?'none':(paid>=due?'full':'part')));
+    var label=monthName(mm)+(mm.slice(0,4)!==selYear?' '+mm.slice(2,4):'');
+    h+='<button class="mchip st-'+st+'" data-act="pickmonth" data-m="'+mm+'" aria-pressed="'+(mm===sel)+'" aria-label="'+esc(monthName(mm)+' '+mm.slice(0,4))+': '+(ST_LABEL[st]||'قبل التسجيل')+'">'+esc(label)+' <i>'+MARK[st]+'</i></button>';
+  }
+  return '<div class="mstrip">'+h+'</div>';
+}
 function feeRow(s){
   var f=feeInfo(s);
   return '<li class="row" id="row-'+s.id+'"><div class="who"><strong>'+esc(s.name)+'</strong><span>'+esc(meta(s))+(meta(s)?' · ':'')+'المطلوب '+num(f.due)+' ج.م</span></div>'+
-    '<span class="pill '+f.st+'">'+ST_LABEL[f.st]+(f.st==='part'?' (باقي '+num(f.rest)+')':'')+'</span>'+
+    '<span class="pill '+f.st+'">'+esc(monthName(ui.month))+' · '+ST_LABEL[f.st]+(f.st==='part'?' (باقي '+num(f.rest)+')':'')+'</span>'+
     '<div class="pay"><input class="paid-input" type="number" inputmode="numeric" min="0" data-id="'+s.id+'" value="'+(f.paid||'')+'" placeholder="المدفوع" aria-label="المبلغ المدفوع لـ '+esc(s.name)+'"'+(canWrite?'':' disabled')+'>'+
     (f.st==='full'?'<button class="btn" data-act="unpay" data-id="'+s.id+'"'+(canWrite?'':' disabled')+'>إلغاء</button>':'<button class="btn primary" data-act="payfull" data-id="'+s.id+'"'+(canWrite&&f.due>0?'':' disabled')+'>دفع كامل</button>')+
-    '</div></li>';
+    '</div>'+monthStrip(s)+'</li>';
 }
 function feeSummary(list){
   var due=0,paid=0;list.forEach(function(s){var f=feeInfo(s);due+=f.due;paid+=Math.min(f.paid,f.due||f.paid);});
@@ -406,7 +428,7 @@ async function setPaid(id,v){
   else await guard(sb.from('fees').delete().eq('student_id',id).eq('month',m),function(){return loadFees(m);});
 }
 async function setDate(d){ui.date=d;render(true);try{await loadAttMonth(d.slice(0,7));render(true);}catch(e){toast('تعذر تحميل الحضور.');}}
-async function setMonth(m){ui.month=m;render(true);try{await loadFees(m);render(true);}catch(e){toast('تعذر تحميل المصاريف.');}}
+function setMonth(m){ui.month=m;render(true);}
 
 document.addEventListener('click',async function(e){
   var t=e.target.closest('[data-act]');if(!t)return;
@@ -417,6 +439,7 @@ document.addEventListener('click',async function(e){
   else if(act==='day')setDate(shiftDate(ui.date,Number(t.dataset.n)));
   else if(act==='today')setDate(todayStr());
   else if(act==='mon')setMonth(shiftMonth(ui.month,Number(t.dataset.n)));
+  else if(act==='pickmonth')setMonth(t.dataset.m);
   else if(act==='ff'){ui.feeFilter=t.dataset.v;render(true);}
   else if(act==='lv'){ui.level=t.dataset.v;render(true);}
   else if(act==='mark')mark(id,t.dataset.v);
