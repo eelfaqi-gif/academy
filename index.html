@@ -274,16 +274,17 @@ function viewAtt(){
   }).join('')+'</ul>';
 }
 function monthName(m){return MONTHS[Number(m.split('-')[1])-1];}
-var MARK={full:'✓',part:'½',none:'✗',na:'–',pre:'·'};
+var MARK={full:'✓',part:'½',none:'✗',na:'–',pre:'·',later:'·'};
 function monthStrip(s){
-  var start=(s.created_at||'').slice(0,7),sel=ui.month,selYear=sel.slice(0,4),h='';
-  for(var k=5;k>=0;k--){
-    var mm=shiftMonth(sel,-k);
+  /* السنة كلها: يناير إلى ديسمبر للسنة المختارة فوق */
+  var start=(s.created_at||'').slice(0,7),sel=ui.month,y=sel.slice(0,4),cur=todayStr().slice(0,7),h='';
+  for(var k=1;k<=12;k++){
+    var mm=y+'-'+pad(k);
     var paid=Number((state.fees[mm]||{})[s.id]||0),due=Number(s.fee||0);
     var started=!start||mm>=start||paid>0;
-    var st=!started?'pre':(due<=0&&paid<=0?'na':(paid<=0?'none':(paid>=due?'full':'part')));
-    var label=monthName(mm)+(mm.slice(0,4)!==selYear?' '+mm.slice(2,4):'');
-    h+='<button class="mchip st-'+st+'" data-act="pickmonth" data-m="'+mm+'" aria-pressed="'+(mm===sel)+'" aria-label="'+esc(monthName(mm)+' '+mm.slice(0,4))+': '+(ST_LABEL[st]||'قبل التسجيل')+'">'+esc(label)+' <i>'+MARK[st]+'</i></button>';
+    var st=!started?'pre':(mm>cur&&paid<=0?'later':(due<=0&&paid<=0?'na':(paid<=0?'none':(paid>=due?'full':'part'))));
+    var txt=ST_LABEL[st]||(st==='later'?'لسه ماجاش':'قبل التسجيل');
+    h+='<button class="mchip st-'+st+'" data-act="pickmonth" data-m="'+mm+'" aria-pressed="'+(mm===sel)+'" aria-label="'+esc(monthName(mm)+' '+y)+': '+txt+'">'+esc(monthName(mm))+' <i>'+MARK[st]+'</i></button>';
   }
   return '<div class="mstrip">'+h+'</div>';
 }
